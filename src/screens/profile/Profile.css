@@ -1,14 +1,15 @@
 .profileInfoSection {
     display: flex;
-    flex-direction: row;
+    flex-direction: column;
+    align-items: center;
+
 }
 
 .username {
-    margin-left: 30px;
-    margin-top: 20px;
+    
     font-size: 20px;
     font-weight: 500;
-    margin-bottom: 5px;
+   
 }
 
 .right{
@@ -16,15 +17,6 @@
     flex-direction: column;
 }
 
-.userInfo{
-    margin-left: 30px;
-   padding: 0px;
-  margin-top: 0px;      
-}
-
-.infoTabs{
-    margin-right: 60px;
-}
 
 .userFullName{
     margin-left: 30px;
@@ -131,3 +123,47 @@
     margin-bottom: 20px;
     margin-left: 10px;
 }
+
+.avatar {
+   
+        vertical-align: middle;
+        width: 100px;
+        height: 100px;
+        border-radius: 50%;
+        margin-left: 25%;
+     
+        
+}
+
+.userdetails {
+    font-size: 12;
+}
+
+
+.maindiv {
+    margin-left: 35%;
+}
+
+
+
+.followclass {
+    margin-left: 6%;
+    margin-right: 8%;
+}
+
+.cardstyle {
+    width: 150%;
+    height: 120%;
+    margin-top: 20px;
+}
+
+.user-image-grid-item {
+    margin: 15px;
+    margin-left: 8px;
+    margin-right: 5px;
+    width: auto;
+    height: auto;
+    scale: 100%;
+    justify-content: center;
+}
+
