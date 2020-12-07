@@ -1,276 +1,362 @@
-import React, { Component } from "react";
-import "./Home.css";
-import Header from "../../common/header/Header";
-import { makeStyles } from "@material-ui/core/styles";
-import Card from "@material-ui/core/Card";
-import CardHeader from "@material-ui/core/CardHeader";
-import CardContent from "@material-ui/core/CardContent";
-import { withStyles } from "@material-ui/core/styles";
-import { CardMedia, GridList, GridListTile } from "@material-ui/core";
-import CardActions from "@material-ui/core/CardActions";
-import Collapse from "@material-ui/core/Collapse";
-import Avatar from "@material-ui/core/Avatar";
-import { red } from "@material-ui/core/colors";
-import Button from "@material-ui/core/Button";
-import FormControl from "@material-ui/core/FormControl";
-import InputLabel from "@material-ui/core/InputLabel";
-import Input from "@material-ui/core/Input";
-import SvgIcon from "@material-ui/core/SvgIcon";
-import {constants} from "../../common/constants"
+import React, {Component} from 'react';
+import './Home.css';
+import Header from '../../common/header/Header';
+import Card from '@material-ui/core/Card';
+import CardActions from '@material-ui/core/CardActions';
+import IconButton from '@material-ui/core/IconButton';
+import CardHeader from '@material-ui/core/CardHeader';
+import CardMedia from '@material-ui/core/CardMedia';
+import CardContent from '@material-ui/core/CardContent';
+import Avatar from '@material-ui/core/Avatar';
+import {withStyles} from '@material-ui/core/styles';
+import FavoriteIconBorder from '@material-ui/icons/FavoriteBorder';
+import FormControl from '@material-ui/core/FormControl';
+import FavoriteIconFill from '@material-ui/icons/Favorite';
+import Typography from '@material-ui/core/Typography';
+import InputLabel from '@material-ui/core/InputLabel';
+import Input from '@material-ui/core/Input';
+import Button from '@material-ui/core/Button';
+import GridList from '@material-ui/core/GridList';
+import GridListTile from '@material-ui/core/GridListTile';
+import profileImage from "../../assets/upgrad.svg"
+import Config from '../../common/config';
 
-const useStyles = makeStyles((theme) => ({
-  root: {
-    maxWidth: 345,
-  },
-  media: {
-    height: 0,
-    paddingTop: "56.25%", // 16:9
-  },
-  expand: {
-    transform: "rotate(0deg)",
-    marginLeft: "auto",
-    transition: theme.transitions.create("transform", {
-      duration: theme.transitions.duration.shortest,
-    }),
-  },
-  expandOpen: {
-    transform: "rotate(180deg)",
+const styles =  theme => ({
+  card: {
+    maxWidth: 1100,
   },
   avatar: {
-    backgroundColor: red[500],
+    margin: 10,
   },
-  button: {
-    margin: theme.spacing(1),
+  media: {
+    height:0,
+    paddingTop: '56.25%',
   },
-  input: {
-    display: "none",
+  formControl: {
+    display:'flex',
+    flexDirection:'row',
+    justifyContent:'space-between',
+    alignItems:'baseline',
   },
-  hr: {
-    width: 200,
+  comment:{
+    display:'flex',
+    alignItems:'center',
   },
-  icon: {
-    margin: theme.spacing(1),
-    fontSize: 32,
+  hr:{
+    marginTop:'10px',
+    borderTop:'2px solid #f2f2f2'
   },
-  root1: {
-    display: "flex",
-    flexWrap: "wrap",
-    justifyContent: "center",
-    overflow: "hidden",
-    backgroundColor: theme.palette.background.paper,
+  gridList:{
+    width: 1100,
+    height: 'auto',
+    overflowY: 'auto',
   },
-  gridList: {
-    width: 2000,
-    height: 320,
-  },
-}));
+  grid:{
+    display:'flex',
+    justifyContent:'center',
+    alignItems:'center',
+    marginTop:90
+  }
+});
 
-function FavoriteBorderIcon(props) {
-  return (
-    <SvgIcon {...props}>
-      <path
-        d="M16.5 3c-1.74 0-3.41.81-4.5 2.09C10.91 3.81 9.24 3 7.5 3 4.42 3 2 5.42 
-      2 8.5c0 3.78 3.4 6.86 8.55 11.54L12 21.35l1.45-1.32C18.6 15.36 22 12.28 22 8.5 22 
-      5.42 19.58 3 16.5 3zm-4.4 15.55l-.1.1-.1-.1C7.14 14.24 4 11.39 4 8.5 4 6.5 5.5 5 7.5 
-      5c1.54 0 3.04.99 3.57 2.36h1.87C13.46 5.99 14.96 5 16.5 5c2 0 3.5 1.5 3.5 3.5 0 2.89-3.14 5.74-7.9 10.05z"
-      />
-    </SvgIcon>
-  );
-}
+class Home extends Component{
 
-function FavoriteIcon(props) {
-  return (
-    <SvgIcon {...props}>
-      <path
-        d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09
-       3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z"
-      />
-    </SvgIcon>
-  );
-}
-
-class Home extends Component {
-  constructor() {
-    super();
+  constructor(props) {
+    super(props);
+    if (sessionStorage.getItem('access-token') == null) {
+      props.history.replace('/');
+    }
     this.state = {
-      userImages: [],
-      imageInfo: [],
-      imageInfo1: [],
-      hashtags: ["#smile ", "#GoodDay "],
-      hashtag1: ["#life ", "#EnjoyLife "],
-      hashtag2: ["#Nature ", "#StayCloseToNature "],
-      favClick: false,
-      count: 0,
-      addComment: [],
-    };
+      data: [],
+      filteredData:[],
+      userData:{},
+      likeSet:new Set(),
+      comments:{},
+      currrentComment:""
+    }
   }
 
-  imageCommentOnChangeChangeHandler = (e) => {
-    this.setState({ imagecomment: e.target.value });
-  };
-
-  componentWillMount() {
-    //Get user images
-    let data = null;
-    let xhr = new XMLHttpRequest();
-    let that = this;
-    xhr.addEventListener("readystatechange", function () {
-      if (this.readyState === 4) {
-        console.log(JSON.parse(this.responseText));
-        that.setState({ userImages: JSON.parse(this.responseText).data });
-      }
-    });
-    xhr.open(
-      "GET",
-      this.props.baseUrl +
-        "me/media?fields=id,caption&access_token="+constants.accessToken
-    );
-    // xhr.open("GET",)
-    xhr.send(data);
-
-    //Second API Call
-    let imageinfo = null;
-    let xhrImageinfo = new XMLHttpRequest();
-    xhrImageinfo.addEventListener("readystatechange", function () {
-      if (this.readyState === 4) {
-        console.log(JSON.parse(this.responseText));
-        that.setState({ imageInfo: JSON.parse(this.responseText) });
-      }
-    });
-
-    xhrImageinfo.open(
-      "GET",
-      this.props.baseUrl +
-        "17942402332404488?fields=id,media_type,media_url,username,timestamp&access_token="+constants.accessToken
-    );
-    xhrImageinfo.send(imageinfo);
-
-    let imageinfo1 = null;
-    let xhrImageinfo1 = new XMLHttpRequest();
-    xhrImageinfo1.addEventListener("readystatechange", function () {
-      if (this.readyState === 4) {
-        console.log(JSON.parse(this.responseText));
-
-        that.setState({ imageInfo1: JSON.parse(this.responseText) });
-      }
-    });
-    xhrImageinfo1.open(
-      "GET",
-      this.props.baseUrl +
-        "17895975988647782?fields=id,media_type,media_url,username,timestamp&access_token="+constants.accessToken
-    );
-    xhrImageinfo1.send(imageinfo1);
+  componentDidMount(){
+    this.getMediaInfo();
   }
 
-  incrementMe = () => {
-    let newCount = this.state.count + 1;
-    this.setState({
-      count: newCount,
-    });
-  };
-
-  onCommentChangeHandler = (event) => {
-    var comment = {
-      text: event.target.value,
-    };
-    this.setState({
-      ...this.state,
-      commentText: comment,
-    });
-  };
-
-  onClickAddBtn = () => {
-    alert("Hello");
-  };
-
-  render() {
-    const { classes } = this.props;
-    const tiledata = [
-      {
-        img: "masha.jpeg",
-        title: "Life Quotes",
-        author: "rajeevdixit05",
-        date: "12/07/2020 12:23:45",
-      },
-      {
-        img: "life is your cresation.jpeg",
-        title: "Motivational Quotes",
-        author: "rajeevdixit05",
-        date: "12/07/2020 12:23:45",
-      },
-    ];
-    return (
-      <div className={useStyles.root1}>
-        <Header showSearchBox="true" />
-        <br />
-
-        <GridList
-          component="div"
-          cellHeight={"auto"}
-          cols={3}
-          className="gridlistmain"
-        >
-          {tiledata.map((tile) => (
-            <GridListTile
-              component="div"
-              className="user-image-grid-item"
-              cols={tile.cols}
-              rows={tile.rows}
-              key={tile.img}
-            >
-              <Card className="cardstyle">
-                <CardHeader
-                  avatar={
-                    <Avatar aria-label="recipe" className={classes.avatar}>
-                      <img
-                        src={require("../../assets/masha.jpeg")}
-                        width="50"
-                        height="50"
-                      ></img>
-                    </Avatar>
-                  }
-                  title={tile.title}
-                  subtitle={tile.author}
-                />
-                <CardContent>
-                  <img
-                    src={require("../../assets/" + tile.img)}
-                    alt={tile.title}
-                  />
-                  <hr className={classes.hr} />
-                  <h4 className="captionText">{this.state.hashtag1}</h4>
-                  <div className="likes">
-                    <button className="button" onClick={this.incrementMe}>
-                      <FavoriteBorderIcon />
-                    </button>
-                    {this.state.count} likes
-                  </div>
-                  <FormControl className="formcontrol">
-                    <InputLabel htmlFor="imagecomment">
-                      Add a Comment
-                    </InputLabel>
-                    <Input
-                      id="imagecomment"
-                      type="text"
-                      onChange={this.imageCommentOnChangeChangeHandler}
-                    />
-                  </FormControl>
-                  <Button
-                    id="addedcomment"
-                    variant="contained"
-                    color="primary"
-                    onClick={this.addCommentOnClickHandler}
-                  >
-                    Add
-                  </Button>
-                </CardContent>
-              </Card>
-            </GridListTile>
-          ))}
-        </GridList>
+  render(){
+    const{classes} = this.props;
+    return(
+      <div>
+        <Header
+          userProfileUrl={profileImage}
+          screen={"Home"}
+          searchHandler={this.onSearchEntered}
+          handleLogout={this.logout}
+          handleAccount={this.navigateToAccount}/>
+        <div className={classes.grid}>
+          <GridList className={classes.gridList} cellHeight={'auto'}>
+            {this.state.filteredData.map(item => (
+              <GridListTile key={item.id}>
+                <HomeItem
+                  classes={classes}
+                  item={item}
+                  onLikedClicked={this.likeClickHandler}
+                  onAddCommentClicked={this.addCommentClickHandler}
+                  commentChangeHandler={this.commentChangeHandler}
+                  comments={this.state.comments}/>
+              </GridListTile>
+            ))}
+          </GridList>
+        </div>
       </div>
     );
   }
+
+  onSearchEntered = (value) =>{
+    console.log('search value', value);
+    let filteredData = this.state.data;
+    filteredData = filteredData.filter((data) =>{
+      let string = data.caption.toLowerCase();
+      let subString = value.toLowerCase();
+      return string.includes(subString);
+    })
+    this.setState({
+      filteredData
+    })
+  }
+
+  likeClickHandler = (id) =>{
+    var foundItem = this.state.data.find((item) => {
+      return item.id === id;
+    })
+    if (typeof foundItem !== undefined) {
+      if (!this.state.likeSet.has(id)) {
+        foundItem.likes_count++;
+        this.setState(({likeSet}) => ({
+          likeSet:new Set(likeSet.add(id))
+        }))
+
+      }else {
+        foundItem.likes_count--;
+        this.setState(({likeSet}) =>{
+          const newLike = new Set(likeSet);
+          newLike.delete(id);
+
+          return {
+            likeSet:newLike
+          };
+        });
+      }
+    }
+  }
+
+  addCommentClickHandler = (id)=>{
+    if (this.state.currentComment === "" || typeof this.state.currentComment === undefined) {
+      return;
+    }
+
+    let commentList = this.state.comments.hasOwnProperty(id)?
+      this.state.comments[id].concat(this.state.currentComment): [].concat(this.state.currentComment);
+
+    this.setState({
+      comments:{
+        ...this.state.comments,
+        [id]:commentList
+      },
+      currentComment:''
+    })
+    sessionStorage.setItem(id+'comment',JSON.stringify([...commentList]));
+  }
+
+
+  commentChangeHandler = (e) => {
+    this.setState({
+      currentComment:e.target.value
+    });
+  }
+
+  getMediaInfo =  () => {
+    let that = this;
+    let url = `${Config.api.mediaUrl}&access_token=${sessionStorage.getItem('access-token')}`;
+    //Calling first API
+    return fetch(url,{
+      method:'GET',
+    }).then((response) =>{
+        console.log("first API==========")
+        console.log(response.json())
+        return response.json();
+    }).then((jsonResponse) =>{
+      const mediaArray = jsonResponse.data;
+      const mediaInfo = []
+      //Calling second API with all the media Ids returned from First API call
+    return  Promise.all(
+          mediaArray.map(x => {
+            return new Promise((resolve) => {
+              let url = `https://graph.instagram.com/${x.id}?fields=id,media_type,media_url,username,timestamp&access_token=${sessionStorage.getItem('access-token')}`;
+              console.log("url========"+url)
+              fetch(url,{
+                method:'GET',
+              })
+                  .then(response => {
+                    return new Promise(() => {
+                      response.json()
+                          .then(media => {
+                            mediaInfo.push(media)
+                            resolve()
+                          })
+                    })
+                  })
+            })
+          })
+      )
+          .then(() => {
+            mediaInfo.forEach(media=>{
+              const m = mediaArray.filter(x=>x.id===media.id);
+              media['caption'] = m[0].caption;
+              media['likes_count'] =2; // Hard coding the number of likes
+              //Extracting the hashtags
+              let regex = /#(\w+)/g;
+              media['hashtags'] =  media.caption.match(regex);
+              media['hashtags'] =   media['hashtags']?media['hashtags'].join(' ') : ''
+              media.caption  = media.caption.replace(/#([^\s]*)/gm, '');
+            })
+            that.setState({
+              data:mediaInfo,
+              filteredData:mediaInfo
+            });
+          })
+
+    }).catch((error) => {
+      console.log(" Error here")
+    });
+  }
+
+  logout = () => {
+    sessionStorage.clear();
+    this.props.history.replace('/');
+  }
+
+  navigateToAccount = () =>{
+    this.props.history.push('/profile');
+  }
 }
 
-export default withStyles(useStyles)(Home);
+class HomeItem extends Component{
+  constructor(){
+    super();
+    this.state = {
+      isLiked : false,
+      comment:'',
+    }
+  }
+
+  render(){
+    const {classes, item, comments} = this.props;
+//timestamo conversion
+    let createdTime = new Date(item.timestamp);
+    let yyyy = createdTime.getFullYear();
+    let mm = createdTime.getMonth() + 1 ;
+    mm = mm>=10?mm:'0'+mm;
+    let dd = createdTime.getDate() >=10 ?createdTime.getDate() : '0'+ createdTime.getDate() ;
+    let HH = createdTime.getHours() >=10 ?createdTime.getHours() : '0'+createdTime.getHours() ;
+    let MM = createdTime.getMinutes()>=10?createdTime.getMinutes() : '0'+createdTime.getMinutes();
+    let ss = createdTime.getSeconds()>=10?createdTime.getSeconds() : '0'+createdTime.getSeconds();
+    let time = dd+"/"+mm+"/"+yyyy+" "+HH+":"+MM+":"+ss;
+
+
+    return(
+      <div className="home-item-main-container">
+        <Card className={classes.card}>
+          <CardHeader
+            avatar={
+              <Avatar alt="User Profile Pic" src={profileImage} className={classes.avatar}/>
+            }
+            title={item.username}
+            subheader={time}
+          />
+          <CardContent>
+            <CardMedia
+              className={classes.media}
+              image={item.media_url}
+              title={item.caption}
+            />
+            <div  className={classes.hr}>
+              <Typography component="p">
+                {item.caption}
+              </Typography>
+              <Typography style={{color:'#4dabf5'}} component="p" >
+                {item.hashtags}
+              </Typography>
+            </div>
+          </CardContent>
+
+            <CardActions>
+              <IconButton aria-label="Add to favorites" onClick={this.onLikeClicked.bind(this,item.id)}>
+                {this.state.isLiked && <FavoriteIconFill style={{color:'#F44336'}}/>}
+                {!this.state.isLiked && <FavoriteIconBorder/>}
+              </IconButton>
+              <Typography component="p">
+                {item.likes_count} Likes
+              </Typography>
+            </CardActions>
+
+            <CardContent>
+            {comments.hasOwnProperty(item.id) && comments[item.id].map((comment, index)=>{
+              return(
+                <div key={index} className="row">
+                  <Typography component="p" style={{fontWeight:'bold' }} >
+                    {sessionStorage.getItem('username')}:
+                  </Typography>
+                  <Typography component="p" style={{marginLeft:'4px' }} >
+                    {comment}
+                  </Typography>
+                </div>
+              )
+            })}
+            <div className={classes.formControl}>
+              <FormControl style={{flexGrow:1}}>
+                <InputLabel htmlFor="comment">Add Comment</InputLabel>
+                <Input id="comment" value={this.state.comment} onChange={this.commentChangeHandler}/>
+              </FormControl>
+              <FormControl>
+                <Button style={{marginLeft:'1rem' }} onClick={this.onAddCommentClicked.bind(this,item.id)}
+                   variant="contained" color="primary">
+                  ADD
+                </Button>
+              </FormControl>
+            </div>
+          </CardContent>
+        </Card>
+      </div>
+    )
+  }
+
+  onLikeClicked = (id) => {
+    if (this.state.isLiked) {
+      this.setState({
+        isLiked:false
+      });
+    }else {
+      this.setState({
+        isLiked:true
+      });
+    }
+    this.props.onLikedClicked(id)
+  }
+
+  commentChangeHandler = (e) => {
+    this.setState({
+      comment:e.target.value,
+    });
+    this.props.commentChangeHandler(e);
+  }
+
+  onAddCommentClicked = (id) => {
+    if (this.state.comment === "" || typeof this.state.comment === undefined) {
+      return;
+    }
+    this.setState({
+      comment:""
+    });
+    this.props.onAddCommentClicked(id);
+  }
+}
+
+export default withStyles(styles)(Home);
