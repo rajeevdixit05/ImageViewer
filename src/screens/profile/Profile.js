@@ -1,4 +1,4 @@
-upimport React, {Component} from 'react';
+import React, {Component} from 'react';
 import './Profile.css';
 import Header from '../../common/header/Header';
 import Avatar from '@material-ui/core/Avatar';
