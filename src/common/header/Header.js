@@ -1,161 +1,147 @@
-import React, { Component } from "react";
-import "./Header.css";
-import Button from "@material-ui/core/Button";
-import Input from "@material-ui/core/Input";
-import FormControl from "@material-ui/core/FormControl";
-import logo from "../../assets/logo.svg";
-import Avatar from "@material-ui/core/Avatar";
-import IconButton from "@material-ui/core/IconButton";
-import Profile from "../../screens/profile/Profile";
-import Menu from "@material-ui/core/Menu";
-import ReactDOM from "react-dom";
-import { Redirect } from "react-router-dom";
-import MenuItem from "@material-ui/core/MenuItem";
-import { MenuList, Divider } from "@material-ui/core";
-import { withStyles } from "@material-ui/core/styles";
-import { Link } from "react-router-dom";
-import AppBar from "@material-ui/core/AppBar";
-import Typography from "@material-ui/core/Typography";
+import React, {Component} from 'react';
+import './Header.css';
+import AppBar from '@material-ui/core/AppBar';
+import Toolbar from '@material-ui/core/Toolbar';
+import InputBase from '@material-ui/core/InputBase';
+import {withStyles} from '@material-ui/core/styles';
+import SearchIcon from '@material-ui/icons/Search';
+import Avatar from '@material-ui/core/Avatar';
+import IconButton from '@material-ui/core/IconButton';
+import MenuItem from '@material-ui/core/MenuItem';
+import Popover from '@material-ui/core/Popover';
+import { Link } from 'react-router-dom';
 
-const styles = (theme) => ({
-  menuList: {
-    width: 150,
-    padding: 0,
-    marginLeft: 7,
+const styles = theme => ({
+  grow: {
+    flexGrow: 1
   },
-});
+  search: {
+    position: 'relative',
+    borderRadius: '4px',
+    backgroundColor: '#c0c0c0',
+    marginLeft: 0,
+    width: '300px',
+  },
+  searchIcon: {
+    width: theme.spacing(4),
+    height: '100%',
+    position: 'absolute',
+    pointerEvents: 'none',
+    display: 'flex',
+    alignItems: 'center',
+    justifyContent: 'center',
+    color:'#000000'
+  },
+  inputInput: {
+    paddingTop: theme.spacing(1),
+    paddingRight: theme.spacing(1),
+    paddingBottom: theme.spacing(1),
+    paddingLeft: theme.spacing(4),
+    transition: theme.transitions.create('width'),
+    width: '100%',
+    [theme.breakpoints.up('sm')]: {
+      width: 120,
+      '&:focus': {
+        width: 200
+      }
+    }
+  },
+  avatar: {
+    width: 50,
+    height: 50,
+  },
+  appHeader:{
+    backgroundColor:'#263238'
+  },
+  hr:{
+    height:'1.5px',
+    backgroundColor:'#f2f2f2',
+    marginLeft:'5px',
+    marginRight:'5px'
+  }
+})
 
-class Header extends Component {
-  constructor() {
-    super();
+class Header extends Component{
+
+  constructor(props){
+    super(props);
     this.state = {
-      menuIsOpen: false,
-      loggedin: sessionStorage.getItem("access_token") == null ? false : true,
       anchorEl: null,
     };
   }
 
-  openMenuHandler = () => {
-    this.setState({ menuIsOpen: true });
-  };
-
-  closeMenuHandler = () => {
-    this.setState({ menuIsOpen: false });
-  };
-
-  logoutClickHandler = () => {
-    sessionStorage.removeItem("access_token");
-    this.setState({ loggedin: false });
-  };
-
-  accountClickHandler = () => {
-    ReactDOM.render(
-      <Profile baseUrl={this.props.baseUrl} />,
-      document.getElementById("root")
-    );
-  };
-
-  onProfileIconClickHandler = (event) => {
-    this.state.anchorEl
-      ? this.setState({ anchorEl: null })
-      : this.setState({ anchorEl: event.currentTarget });
-    this.openMenuHandler();
-  };
-
-  goToLoginPage = () => {
-    if (this.state.loggedin === false) {
-      return <Redirect to="/" />;
-    }
-  };
-  render() {
-    const { classes } = this.props;
-    return (
-      <div>
-        <header className="app-header">
-          <a className="logo" href="/home">
-            Image Viewer
-          </a>
-          {this.props.showSearchBox === "true" ? (
-            <div className="searchBox">
-              <img src={logo} className="app-logo" alt="Search Logo" />
-              <FormControl className="formControl">
-                <Input
-                  className="searchText"
-                  type="text"
-                  placeholder="Search..."
-                  disableUnderline={true}
-                  onChange={this.props.searchChangeHandler}
-                />
-              </FormControl>
-            </div>
-          ) : (
-            ""
-          )}
-
-         
-            <span>
-              <IconButton
-                className="iconBtn"
-                size="medium"
-                onClick={(event) => this.onProfileIconClickHandler(event)}
-              >
-                <Avatar className="avatar">
-                  <img
-                    src={require("../../assets/masha.jpeg")}
-                    className="profilePic"
-                    alt="logged in user profile pic"
-                  ></img>
-                </Avatar>
-              </IconButton>
-
-              <Menu
-                className="simple-menu"
-                elevation={0}
-                getContentAnchorEl={null}
-                anchorEl={this.state.anchorEl}
-                anchorOrigin={{
-                  vertical: "bottom",
-                  horizontal: "center",
-                }}
-                transformOrigin={{
-                  vertical: "top",
-                  horizontal: "center",
-                }}
-                keepMounted
-                open={Boolean(this.state.anchorEl)}
-                onClose={this.handleClose}
-              >
-                <div className={classes.bg}>
-                  <div>
-                    {" "}
-                    <MenuItem
-                      onClose={this.handleClose}
-                      onClick={this.profilePageHandler}
-                    >
-                      <Link to={"/profile"} loggedin="true">
-                        My Account
-                      </Link>
-                    </MenuItem>
-                    <hr />{" "}
-                  </div>
-
-                  <MenuItem
-                    onClose={this.handleClose}
-                    onClick={this.LogoutHandler}
-                  >
-                    <Link to={"/"} loggedin="false">
-                      Logout
-                    </Link>
-                  </MenuItem>
+  render(){
+    const {classes,screen} = this.props;
+    return (<div>
+        <AppBar className={classes.appHeader}>
+          <Toolbar>
+            {(screen === "Login" || screen === "Home") && <span className="header-logo">Image Viewer</span>}
+            {(screen === "Profile") && <Link style={{ textDecoration: 'none', color: 'white' }} to="/home"><span className="header-logo">Image Viewer</span></Link>}
+            <div className={classes.grow}/>
+            {(screen === "Home") &&
+              <div className={classes.search}>
+                <div className={classes.searchIcon}>
+                  <SearchIcon />
                 </div>
-              </Menu>
-            </span>
-       
-        </header>
-        <br />
-      </div>
-    );
+                <InputBase onChange={(e)=>{this.props.searchHandler(e.target.value)}} placeholder="Search…" classes={{
+                    input: classes.inputInput
+                  }}/>
+              </div>
+            }
+            {(screen === "Home" || screen === "Profile")  &&
+              <div>
+                <IconButton onClick={this.handleClick}>
+                  <Avatar alt="Profile Pic" src={this.props.userProfileUrl} className={classes.avatar} style={{border: "1px solid #fff"}}/>
+                </IconButton>
+                <Popover
+                  id="simple-menu"
+                  anchorEl={this.state.anchorEl}
+                  open={Boolean(this.state.anchorEl)}
+                  onClose={this.handleClose}
+                  anchorOrigin={{
+                    vertical: 'bottom',
+                    horizontal: 'left',
+                  }}
+                  transformOrigin={{
+                    vertical: 'top',
+                    horizontal: 'left',
+                  }}>
+                    <div style={{padding:'5px'}}>
+                      { (screen === "Home") &&
+                        <div>
+                          <MenuItem onClick={this.handleAccount}>My Account</MenuItem>
+                          <div className={classes.hr}/>
+                        </div>
+                      }
+                      <MenuItem onClick={this.handleLogout}>Logout</MenuItem>
+                    </div>
+                </Popover>
+              </div>
+            }
+          </Toolbar>
+        </AppBar>
+    </div>)
+  }
+
+  handleClick = (event) =>{ 
+    this.setState({
+      anchorEl: event.currentTarget
+    })
+  }
+
+  handleAccount = ()=>{
+    this.props.handleAccount();
+    this.handleClose();
+  }
+
+  handleLogout = ()=>{
+    this.props.handleLogout();
+    this.handleClose();
+  }
+
+  handleClose = () =>{
+    this.setState({ anchorEl: null });
   }
 }
 
-export default withStyles(styles)(Header);
+export default withStyles(styles)(Header)
