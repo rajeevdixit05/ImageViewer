@@ -1,137 +1,94 @@
-import React, { Component } from "react";
-import "./Login.css";
-import Home from "../../screens/home/Home";
-import Header from "../../common/header/Header";
-import InputLabel from "@material-ui/core/InputLabel";
-import Input from "@material-ui/core/Input";
-import FormControl from "@material-ui/core/FormControl";
-import FormHelperText from "@material-ui/core/FormHelperText";
-import Button from "@material-ui/core/Button";
-import Card from "@material-ui/core/Card";
-import CardContent from "@material-ui/core/CardContent";
-import Typography from "@material-ui/core/Typography";
-import { Redirect } from "react-router-dom";
-import ReactDOM from "react-dom";
-import {constants} from "../../common/constants"
+import React, { Component } from 'react';
+import Button from '@material-ui/core/Button';
+import Card from '@material-ui/core/Card';
+import CardContent from '@material-ui/core/CardContent';
+import Typography from '@material-ui/core/Typography';
+import FormControl from '@material-ui/core/FormControl';
+import InputLabel from '@material-ui/core/InputLabel';
+import Input from '@material-ui/core/Input';
+import FormHelperText from '@material-ui/core/FormHelperText';
+import Config from "../../common/config";
+
+import Header from '../../common/header/Header';
+import './Login.css'
+
+const styles = {
+    card: {
+        padding: '15px',
+        position: 'relative',
+        top: '90px',
+        left: '50%',
+        width: '325px',
+        transform: 'translateX(-50%)',
+    },
+    title: {
+        fontSize: 20
+    }
+};
 
 class Login extends Component {
-  constructor() {
-    super();
-    this.state = {
-      username: "",
-      password: "",
-      reqUsername: "dispNone",
-      reqPassword: "dispNone",
-      error: "dispNone",
-      loginSucess: false,
-      loggedin: sessionStorage.getItem("access-token") == null ? false : true,
-    };
-  }
 
-  inputUsernameChangeHandler = (e) => {
-    this.setState({ username: e.target.value });
-  };
-
-  // Password Handler definitions to set the parameter value of input password entered by user
-
-  inputPasswordChangeHandler = (e) => {
-    this.setState({ password: e.target.value });
-  };
-
-  loginButtonHandler = () => {
-    this.state.username === ""
-      ? this.setState({ reqUsername: "dispBlock" })
-      : this.setState({ reqUsername: "dispNone" });
-    this.state.password === ""
-      ? this.setState({ reqPassword: "dispBlock" })
-      : this.setState({ reqPassword: "dispNone" });
-    let usernameCorrect = "IVUser";
-    let passwordCorrect = "IVPWD";
-    if (
-      this.state.username === usernameCorrect &&
-      this.state.password === passwordCorrect
-    ) {
-      // ReactDOM.render(<Home baseUrl={this.props.baseUrl} />, document.getElementById('root'));
-      this.setState({ loggedin: "true" });
-      sessionStorage.setItem(
-        "access_token",
-        constants.accessToken
-      );
-      this.props.history.push({
-        pathname: "/home",
-        loggedin: "true",
-        showSearchTab: "true",
-        baseUrl: this.props.baseUrl,
-      });
-    } else {
-      if (this.state.username !== "" && this.state.password !== "")
-        this.setState({ error: "dispBlock" });
+    constructor() {
+        super();
+        this.state = {
+            username: "",
+            usernameRequired: "dispNone",
+            password: "",
+            passwordRequired: "dispNone",
+            incorrectUsernamePassword: "dispNone",
+            loggedIn: sessionStorage.getItem('access-token') == null ? false : true
+        };
     }
-  };
 
-  render() {
-    return (
-      <div>
-        {this.state.loggedin === true ? (
-          <Redirect to="/home" />
-        ) : (
-          <div>
-            <Header />
-            <Card className="cardStyle">
-              <CardContent>
-                <Typography variant="h4">LOGIN</Typography> <br />
-                <FormControl required className="formControl">
-                  <InputLabel htmlFor="username">Username</InputLabel>
-                  <Input
-                    id="username"
-                    type="text"
-                    username={this.state.username}
-                    onChange={this.inputUsernameChangeHandler}
-                    value={this.state.username}
-                  />
-                  <FormHelperText className={this.state.reqPassword}>
-                    <span className="red">required</span>
-                  </FormHelperText>
-                </FormControl>
-                <br />
-                <br />
-                <FormControl required className="formControl">
-                  <InputLabel htmlFor="password">Password</InputLabel>
-                  <Input
-                    id="password"
-                    type="password"
-                    password={this.state.password}
-                    onChange={this.inputPasswordChangeHandler}
-                  />
-                  <FormHelperText className={this.state.reqPassword}>
-                    <span className="red">required</span>
-                  </FormHelperText>
-                </FormControl>{" "}
-                <br />
-                <br />
-                <FormControl required className="formControl">
-                  <FormHelperText className={this.state.error}>
-                    <span className="red">
-                      Incorrect username and/or password
-                    </span>
-                  </FormHelperText>
-                </FormControl>
-                <br />
-                <br />
-                <Button
-                  variant="contained"
-                  onClick={this.loginButtonHandler}
-                  color="primary"
-                >
-                  Login
-                </Button>
-              </CardContent>
-            </Card>
-          </div>
-        )}
-      </div>
-    );
-  }
+    onClickLogin = () => {
+        //Checking the Required field for UserName and Password
+        this.setState({ incorrectUsernamePassword: "dispNone" });
+        this.state.username === "" ? this.setState({ usernameRequired: "dispBlock" }) : this.setState({ usernameRequired: "dispNone" });
+        this.state.password === "" ? this.setState({ passwordRequired: "dispBlock" }) : this.setState({ passwordRequired: "dispNone" });
+
+        //Check the blank value
+        if (this.state.username === "" || this.state.password === "") { return }
+
+        //Validating the UserName and Password with configured one.
+        if (this.state.username === Config.login.username && this.state.password === Config.login.password ) {
+            sessionStorage.setItem('username', Config.login.username );
+            sessionStorage.setItem('access-token', Config.auth["access-token"]);
+            this.setState({ loggedIn: true });
+            this.props.history.push('/home');
+        } else {
+            this.setState({ incorrectUsernamePassword: "dispBlock" });
+        }
+    }
+
+    //Setting the UserName and Password
+    inputUsernameChangeHandler = (e) => { this.setState({ username: e.target.value })  }
+    inputPasswordChangeHandler = (e) => { this.setState({ password: e.target.value })  }
+
+    render() {
+        return (
+            <div className="main-container">
+                <Header
+                  screen={"Login"}/>
+                <Card style={styles.card}>
+                    <CardContent>
+                        <Typography style={styles.title}> LOGIN </Typography><br />
+                        <FormControl required fullWidth >
+                            <InputLabel htmlFor="username"> Username </InputLabel>
+                            <Input id="username" type="text" username={this.state.username} onChange={this.inputUsernameChangeHandler} />
+                            <FormHelperText className={this.state.usernameRequired}><span className="red">required</span></FormHelperText>
+                        </FormControl><br /><br />
+                        <FormControl required fullWidth >
+                            <InputLabel htmlFor="password"> Password </InputLabel>
+                            <Input id="password" type="password" onChange={this.inputPasswordChangeHandler} />
+                            <FormHelperText className={this.state.passwordRequired}><span className="red">required</span></FormHelperText>
+                        </FormControl><br /><br />
+                        <div className={this.state.incorrectUsernamePassword}><span className="red"> Incorrect username and/or password </span></div><br />
+                        <Button variant="contained" color="primary" onClick={this.onClickLogin}> LOGIN </Button>
+                    </CardContent>
+                </Card>
+            </div>
+        )
+    }
 }
 
 export default Login;
